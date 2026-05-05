@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import Home from './pages/Home/Home'
-import { Routes, Route, useNavigate } from 'react-router-dom'
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import Login from './pages/Login/Login'
 import Player from './pages/Player/Player'
 import MovieInfo from './pages/MovieInfo/MovieInfo'
@@ -10,17 +10,26 @@ import { ToastContainer } from 'react-toastify'
 
 const App = () => {
   const navigate = useNavigate()
+  const location = useLocation()
+
   useEffect(() => {
-    onAuthStateChanged(auth, async user => {
+    const unsubscribe = onAuthStateChanged(auth, async user => {
       if (user) {
         console.log('Logged In')
-        navigate('/')
+        if (location.pathname === '/login') {
+          navigate('/')
+        }
       } else {
         console.log('Logged Out')
-        navigate('/login')
+        if (location.pathname !== '/login') {
+          navigate('/login')
+        }
       }
     })
-  })
+
+    return () => unsubscribe()
+  }, [location.pathname, navigate])
+
   return (
     <div>
       <ToastContainer theme='dark' />
